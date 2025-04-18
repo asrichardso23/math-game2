@@ -1,9 +1,10 @@
-/*‑‑‑ GLOBAL LAYOUT ‑‑‑*/
+/* ---------- GLOBAL LAYOUT ---------- */
 *{box-sizing:border-box;margin:0;padding:0;font-family:"Comic Sans MS",sans-serif;}
-body{min-height:100vh;display:flex;flex-direction:column;transition:background .6s;}
+html,body{height:100%;overflow:hidden;}          /* stop accidental scroll */
+body{display:flex;flex-direction:column;transition:background .6s;}
 header{
-  display:flex;align-items:center;justify-content:space-between;
-  padding:1rem 1.5rem;background:#222;color:#fff;gap:1rem;flex-wrap:wrap;
+  display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;
+  gap:1rem;padding:1rem 1.5rem;background:#222;color:#fff;
 }
 h1{font-size:1.6rem;flex:1;text-align:center;}
 .top-left,.top-right{display:flex;align-items:center;gap:.6rem;}
@@ -12,43 +13,53 @@ h1{font-size:1.6rem;flex:1;text-align:center;}
 #scoreBoard{font-size:1.2rem;}
 
 details{background:#eee;padding:.4rem 1rem;}
-.controls{display:flex;gap:1rem;flex-wrap:wrap;justify-content:center;padding:.5rem 0;}
+.controls{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;padding:.5rem 0;}
 label,select{font-size:.95rem;}
 
 main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;}
+
+/* ---------- GAME AREA ---------- */
 #gameArea{
-  position:relative;
-  width:100%;max-width:800px;height:260px;
+  position:relative;width:100%;max-width:800px;height:45vh;max-height:320px;
   margin-top:1rem;border:3px solid #444;border-radius:.8rem;
   background:#333 url("https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1400&q=60") center/cover no-repeat;
-  overflow:hidden;
+  overflow:hidden;touch-action:none;
 }
 .zombie{
-  position:absolute;bottom:0;font-size:3rem;user-select:none;
+  position:absolute;bottom:0;font-size:9vw;user-select:none;
   display:flex;flex-direction:column;align-items:center;gap:.3rem;
 }
 .problem{color:#fffa;font-weight:bold;font-size:1.3rem;text-shadow:0 0 6px #000;}
 .zombie.dead{animation:explode .6s forwards;}
-@keyframes explode{
-  to{transform:scale(2) rotate(720deg);opacity:0;}
-}
+@keyframes explode{to{transform:scale(2) rotate(720deg);opacity:0;}}
 
+/* ---------- ANSWER BAR ---------- */
 .answer-bar{
-  margin-top:1rem;display:flex;gap:.5rem;align-items:center;
+  margin-top:1rem;display:flex;gap:.5rem;align-items:center;justify-content:center;
 }
-#answer{font-size:1.5rem;width:7rem;text-align:center;padding:.2rem .4rem;}
-#submit{font-size:1.1rem;padding:.4rem 1rem;cursor:pointer;}
+#answer{font-size:1.6rem;width:8rem;text-align:center;padding:.3rem .5rem;}
+#submit{font-size:1.3rem;padding:.6rem 1.2rem;cursor:pointer;}
 #feedback{min-width:120px;font-size:1.3rem;color:#fff;text-shadow:0 0 4px #000;}
 
-.modal{
-  position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000;
+/* ---------- BIG DIGIT PAD ---------- */
+.pad{
+  margin:1.2rem auto 0;
+  display:grid;gap:.5rem;width:90%;max-width:420px;
+  grid-template-columns:repeat(3,1fr);font-size:2.2rem;
 }
-.modal-content{
-  background:#fff;padding:1.5rem 2rem;border-radius:.8rem;text-align:center;width:90%;max-width:380px;
+.pad button{
+  padding:1rem 0;border:none;border-radius:.7rem;
+  background:#444;color:#fff;touch-action:manipulation;user-select:none;
 }
+.pad button:active{transform:scale(.92);}
+.pad button.back{grid-column:1/4;background:#b91c1c;}
+
+/* ---------- MODAL ---------- */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center;z-index:1000;}
+.modal-content{background:#fff;padding:1.5rem 2rem;border-radius:.8rem;text-align:center;width:90%;max-width:380px;}
 .avatar-option{font-size:2.4rem;margin:.3rem;background:none;border:none;cursor:pointer;}
 
-/*‑‑‑ THEMES (as before) ‑‑‑*/
+/* ---------- THEMES ---------- */
 body.space{background:#000822;color:#fff;}
 body.unicorn{background:linear-gradient(135deg,#ffdefe,#dff3ff 70%);background-size:400% 400%;animation:uni 10s ease-in-out infinite;}
 @keyframes uni{0%{background-position:0 50%}50%{background-position:100% 50%}100%{background-position:0 50%}}
