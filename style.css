@@ -1,4 +1,4 @@
-/* ----- generic layout ----- */
+/* ---------- generic layout ---------- */
 *{box-sizing:border-box;margin:0;padding:0;}
 body{
   font-family:"Comic Sans MS", sans-serif;
@@ -12,10 +12,19 @@ body{
 header{padding:2rem 1rem;}
 h1{font-size:3rem;margin-bottom:1rem;}
 
-.controls{display:flex;flex-wrap:wrap;gap:1rem;justify-content:center;}
+.controls{
+  display:flex;
+  flex-wrap:wrap;
+  gap:1rem;
+  justify-content:center;
+}
 
 label,button,select{font-size:1rem;}
-button{padding:.4rem 1rem;border:none;border-radius:.4rem;cursor:pointer;}
+button{
+  padding:.4rem 1rem;
+  border:none;border-radius:.4rem;
+  cursor:pointer;
+}
 button:disabled{opacity:.4;}
 
 main{flex:1;padding-bottom:3rem;}
@@ -26,13 +35,96 @@ main{flex:1;padding-bottom:3rem;}
 
 #feedback{font-size:2rem;height:2.5rem;margin-top:1rem;}
 
-progress{width:60%;height:1.2rem;border-radius:.6rem;margin:1.5rem auto;appearance:none;}
-progress::-webkit-progress-bar{background:#ddd;border-radius:.6rem;}
-progress::-webkit-progress-value{background:#4caf50;border-radius:.6rem;}
+progress{
+  width:60%;
+  height:1.2rem;
+  border-radius:.6rem;
+  margin:1.5rem auto;
+  appearance:none;
+}
+progress::-webkit-progress-bar{
+  background:#ddd;
+  border-radius:.6rem;
+}
+progress::-webkit-progress-value{
+  background:#4caf50;
+  border-radius:.6rem;
+}
 
 #stats{margin-top:.3rem;font-size:1rem;color:#333;}
 
-/* ----- themes ----- */
-body.unicorn{background:#ffe9f9 url('https://images.unsplash.com/photo-1508264165352-258db2f35840?auto=format&fit=crop&w=1300&q=60') center/cover no-repeat;}
-body.space  {background:#000428 url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1300&q=60') center/cover no-repeat;color:#fff;}
-body.dino   {background:#e9f7d9 url('https://images.unsplash.com/photo-1592663527357-ee7f05a0f5bf?auto=format&fit=crop&w=1300&q=60') center/cover no-repeat;}
+/* ---------- themes ---------- */
+
+/* space stays the same */
+body.space{
+  background:#000428
+    url('https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1300&q=60')
+    center/cover no-repeat fixed;
+  color:#fff;
+}
+
+/* ---------- unicorn theme (animated pastel + drifting emojis) ---------- */
+body.unicorn{
+  background:
+    linear-gradient(135deg,
+      #ffdefe 0%,   #ffe9f9 20%,
+      #e9d7ff 40%, #dff3ff 60%,
+      #ffdefe 80%, #ffe9f9 100%);
+  background-size:400% 400%;
+  animation:unicornRainbow 12s ease-in-out infinite;
+}
+@keyframes unicornRainbow{
+  0%  {background-position:0% 50%;}
+  50% {background-position:100% 50%;}
+  100%{background-position:0% 50%;}
+}
+
+/* floating faint emoji wallpaper */
+body.unicorn::after{
+  content:"🦄 ✨ 🌈 ⭐️ ✨";
+  position:fixed;
+  top:-10%; left:-10%;
+  font-size:6rem;
+  width:120%; height:120%;
+  opacity:.06;
+  pointer-events:none;
+  animation:unicornFloat 30s linear infinite;
+  white-space:pre;
+}
+@keyframes unicornFloat{
+  from{transform:translateY(0);}
+  to  {transform:translateY(-100%);}
+}
+
+/* ---------- dino theme (repeating jungle hues + drifting footprints) ---------- */
+body.dino{
+  background:
+    repeating-linear-gradient(
+      45deg,
+      #c9e8b3 0 20px,
+      #b7dea0 20px 40px,
+      #a5d38d 40px 60px,
+      #c9e8b3 60px 80px);
+  animation:dinoSway 25s linear infinite;
+}
+@keyframes dinoSway{
+  0%  {background-position:0 0;}
+  100%{background-position:400px 400px;}
+}
+
+/* drifting dinosaur silhouettes */
+body.dino::after{
+  content:"🦕 🦖";
+  position:fixed;
+  bottom:-10%; right:-10%;
+  font-size:7rem;
+  width:120%; height:120%;
+  opacity:.04;
+  pointer-events:none;
+  transform:rotate(-15deg);
+  animation:dinoWalk 40s linear infinite;
+}
+@keyframes dinoWalk{
+  from{transform:translate(0,0) rotate(-15deg);}
+  to  {transform:translate(-100%,100%) rotate(-15deg);}
+}
