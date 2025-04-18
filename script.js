@@ -1,183 +1,159 @@
-/******** DOM refs ********/
-const problemEl  = document.getElementById("problem");
-const answerEl   = document.getElementById("answer");
-const feedback   = document.getElementById("feedback");
-const submitBtn  = document.getElementById("submit");
-const startBtn   = document.getElementById("startBtn");
-const modeSel    = document.getElementById("mode");
-const digitsSel  = document.getElementById("digits");
-const themeSel   = document.getElementById("theme");
-const progressEl = document.getElementById("progress");
-const timerEl    = document.getElementById("timer");
-const bestScoreEl= document.getElementById("bestScore");
-const bestTimeEl = document.getElementById("bestTime");
-const ding       = document.getElementById("correctSound");
-const buzz       = document.getElementById("wrongSound");
-const confetti   = new JSConfetti();
+/***** DOM REFS *****/
+const gameArea = document.getElementById("gameArea");
+const answerEl = document.getElementById("answer");
+const submitBtn = document.getElementById("submit");
+const feedback  = document.getElementById("feedback");
+const startBtn  = document.getElementById("startBtn");
+const livesEl   = document.getElementById("lives");
+const scoreBoard= document.getElementById("scoreBoard");
+const modeSel   = document.getElementById("mode");
+const digitsSel = document.getElementById("digits");
+const themeSel  = document.getElementById("theme");
+const avatarDisplay = document.getElementById("avatarDisplay");
+const editAvatarBtn = document.getElementById("editAvatarBtn");
+const avatarModal   = document.getElementById("avatarModal");
+const avatarChoices = document.getElementById("avatarChoices");
+const closeAvatarBtn= document.getElementById("closeAvatarBtn");
+const ding   = document.getElementById("correctSound");
+const buzz   = document.getElementById("wrongSound");
+const oof    = document.getElementById("loseLifeSound");
+const confetti = new JSConfetti();
 
-/* avatar builder */
-const avatarDisplay   = document.getElementById("avatarDisplay");
-const editAvatarBtn   = document.getElementById("editAvatarBtn");
-const avatarModal     = document.getElementById("avatarModal");
-const avatarChoices   = document.getElementById("avatarChoices");
-const closeAvatarBtn  = document.getElementById("closeAvatarBtn");
+/***** GAME STATE *****/
+let lives, score, currentAnswer, zombieTimer, speed;
 
-/******** game state ********/
-let a, b, op, correct;
-let questionCount, score;
-let timerInt, startTime;
+/***** UTILS *****/
+const rand = (min,max)=>Math.floor(Math.random()*(max-min+1))+min;
+const pick = arr=>arr[Math.floor(Math.random()*arr.length)];
 
-/******** helpers ********/
-const rand = (min,max) => Math.floor(Math.random()*(max-min+1))+min;  // inclusive
-const pick = arr => arr[Math.floor(Math.random()*arr.length)];
-const loadJSON = key => JSON.parse(localStorage.getItem(key)||"{}");
-const saveJSON = (key,obj) => localStorage.setItem(key,JSON.stringify(obj));
+/***** MATH PROBLEM GENERATOR *****/
+function makeProblem(){
+  const digits = +digitsSel.value;
+  const max = digits===1?9:99;
+  const mode = modeSel.value==="mixed"?pick(["add","sub","mul","div"]):modeSel.value;
+  let a,b,txt,ans;
 
-/******** avatar handling ********/
-function initAvatar(){
-  const stored = localStorage.getItem("quickMathAvatar") || "🤖";
-  avatarDisplay.textContent = stored;
-}
-function openAvatarModal(){ avatarModal.style.display="flex"; }
-function closeAvatarModal(){ avatarModal.style.display="none"; }
-function chooseAvatar(e){
-  if(!e.target.classList.contains("avatar-option")) return;
-  const emoji = e.target.textContent;
-  avatarDisplay.textContent = emoji;
-  localStorage.setItem("quickMathAvatar", emoji);
-  closeAvatarModal();
-}
-
-/******** UI helpers ********/
-function setTheme(theme){
-  document.body.classList.remove("unicorn","space","dino");
-  document.body.classList.add(theme);
-}
-
-/******** Problem generator ********/
-function newProblem(){
-  const digits = +digitsSel.value;             // 1 or 2
-  const max = digits===1 ? 9 : 99;
-  const mode = modeSel.value;
-  let modes = ["add","sub","mul","div"];
-  op = mode==="mixed" ? pick(modes) : mode;
-
-  switch(op){
+  switch(mode){
     case "add":
-      a = rand(0,max);
-      b = rand(0,max-a);               // keep sum ≤ max
-      correct = a + b;
-      problemEl.textContent = `${a} + ${b} = ?`;
+      a=rand(0,max); b=rand(0,max-a); ans=a+b; txt=`${a}+${b}`;
       break;
     case "sub":
-      a = rand(0,max);
-      b = rand(0,a);                   // keep result ≥ 0
-      correct = a - b;
-      problemEl.textContent = `${a} − ${b} = ?`;
+      a=rand(0,max); b=rand(0,a); ans=a-b; txt=`${a}‑${b}`;
       break;
     case "mul":
-      a = rand(0,digits===1?9:12);     // cap size so products aren’t enormous
-      b = rand(0,digits===1?9:12);
-      correct = a * b;
-      problemEl.textContent = `${a} × ${b} = ?`;
+      a=rand(0,digits===1?9:12); b=rand(0,digits===1?9:12); ans=a*b; txt=`${a}×${b}`;
       break;
     case "div":
-      b = rand(1,digits===1?9:12);     // divisor
-      correct = rand(0,digits===1?9:12);
-      a = correct * b;                 // ensures whole‑number answer
-      problemEl.textContent = `${a} ÷ ${b} = ?`;
+      b=rand(1,digits===1?9:12); ans=rand(0,digits===1?9:12); a=ans*b; txt=`${a}÷${b}`;
       break;
   }
-  answerEl.value = "";
+  return {txt, ans};
+}
+
+/***** ZOMBIE CREATION *****/
+function spawnZombie(){
+  const {txt, ans} = makeProblem();
+  currentAnswer = ans;
+
+  const z = document.createElement("div");
+  z.className="zombie";
+  z.style.left = gameArea.offsetWidth + "px";
+  z.innerHTML = `<span class="problem">${txt}</span>🧟`;
+  gameArea.appendChild(z);
+
+  // random speed -> duration (px / s)
+  speed = rand(80,140);     // pixels/sec
+  const interval = 16;      // ~60fps
+  function step(){
+    const x = parseFloat(z.style.left);
+    z.style.left = (x - speed*interval/1000) + "px";
+    if(z.classList.contains("dead")) return;           // already killed
+    if(x < -60){                                      // reached player
+      loseLife(z);
+      return;
+    }
+    requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/***** START / RESTART *****/
+function startGame(){
+  // theme
+  document.body.className = themeSel.value;
+  answerEl.value=""; feedback.textContent="";
+  lives=3; score=0;
+  updateHUD();
+  clearZombies();
+  spawnZombie();
   answerEl.focus();
 }
 
-/******** round control ********/
-function startRound(){
-  setTheme(themeSel.value);
-  questionCount = 0;
-  score = 0;
-  feedback.textContent = "";
-  progressEl.value = 0;
-  progressEl.max = 10;
-  startBtn.disabled = true;
-  submitBtn.disabled = false;
-  answerEl.style.display = submitBtn.style.display = "inline-block";
-  timerEl.textContent = "0.0 s";
-  startTime = Date.now();
-  timerInt = setInterval(()=>{
-    const t = (Date.now()-startTime)/1000;
-    timerEl.textContent = t.toFixed(1)+" s";
-  },100);
-  newProblem();
+/***** HUD *****/
+function updateHUD(){
+  livesEl.textContent = "❤️".repeat(lives);
+  scoreBoard.textContent = `Score ${score}`;
 }
 
-function endRound(){
-  clearInterval(timerInt);
-  const elapsed = ((Date.now()-startTime)/1000).toFixed(1);
-  problemEl.textContent = `${avatarDisplay.textContent} scored ${score}/10 in ${elapsed}s 🎉`;
-  answerEl.style.display = submitBtn.style.display = "none";
-  startBtn.disabled = false;
-  confetti.addConfetti({emojis:["🎉","🦄","🚀","🦕","✨","⭐️"]});
+/***** CLEAR *****/
+function clearZombies(){ gameArea.innerHTML=""; }
 
-  /* ----- high‑score ----- */
-  const best = loadJSON("quickMathBest");
-  let updated = false;
-  if(!best.score || score>best.score){
-    best.score = score; updated=true;
-  }
-  if(score===best.score){
-    if(!best.time || elapsed<best.time){
-      best.time = elapsed; updated=true;
-    }
-  }
-  if(updated) saveJSON("quickMathBest",best);
-  showBest();
-}
-
-/******** submit handling ********/
-function check(){
-  if(submitBtn.disabled) return;
-  const guess = Number(answerEl.value);
-  submitBtn.disabled=true;
-  if(guess===correct){
-    feedback.textContent="✔️ Great job!";
-    ding.play();
-    score++;
+/***** KILL / MISS *****/
+function checkAnswer(){
+  const guess = Number(answerEl.value.trim());
+  if(!answerEl.value) return;
+  if(guess===currentAnswer){
+    // kill first zombie
+    const z = gameArea.querySelector(".zombie");
+    if(z){ z.classList.add("dead"); setTimeout(()=>z.remove(),600); }
+    ding.play(); score++; feedback.textContent="💥";
+    confetti.addConfetti({emojis:["💥","✨"]});
+    spawnZombie();
   }else{
-    feedback.textContent=`❌ It was ${correct}`;
-    buzz.play();
+    buzz.play(); feedback.textContent="❌";
   }
-  questionCount++;
-  progressEl.value = questionCount;
-  setTimeout(()=>{
-    feedback.textContent="";
-    submitBtn.disabled=false;
-    if(questionCount===10) endRound();
-    else newProblem();
-  },1000);
+  answerEl.value="";
+  updateHUD();
 }
 
-/******** best score display ********/
-function showBest(){
-  const {score,time} = loadJSON("quickMathBest");
-  bestScoreEl.textContent = score ?? "–";
-  bestTimeEl.textContent  = time  ?? "–";
+function loseLife(z){
+  lives--; updateHUD(); oof.play();
+  z.remove();
+  feedback.textContent="🩸";
+  if(lives<=0){
+    gameOver();
+  }else{
+    spawnZombie();
+  }
 }
 
-/******** event listeners ********/
-submitBtn.addEventListener("click", check);
-answerEl.addEventListener("keydown", e=>e.key==="Enter" && check());
-startBtn.addEventListener("click", startRound);
-themeSel.addEventListener("change", ()=>setTheme(themeSel.value));
-editAvatarBtn.addEventListener("click", openAvatarModal);
-closeAvatarBtn.addEventListener("click", closeAvatarModal);
-avatarModal.addEventListener("click", e=>{ if(e.target===avatarModal) closeAvatarModal(); });
-avatarChoices.addEventListener("click", chooseAvatar);
+function gameOver(){
+  clearZombies();
+  feedback.textContent=`Game Over! Final score ${score}`;
+}
 
-/******** init ********/
-showBest();
-setTheme(themeSel.value);
+/***** AVATAR BUILDER *****/
+function initAvatar(){
+  avatarDisplay.textContent = localStorage.getItem("avatar")||"🧑‍🚀";
+}
+function openAvatar(){ avatarModal.style.display="flex"; }
+function closeAvatar(){ avatarModal.style.display="none"; }
+avatarChoices.addEventListener("click", e=>{
+  if(!e.target.classList.contains("avatar-option")) return;
+  const emoji = e.target.textContent;
+  avatarDisplay.textContent = emoji;
+  localStorage.setItem("avatar",emoji);
+  closeAvatar();
+});
+
+/***** EVENTS *****/
+submitBtn.addEventListener("click", checkAnswer);
+answerEl.addEventListener("keydown",e=>e.key==="Enter"&&checkAnswer());
+startBtn.addEventListener("click", startGame);
+editAvatarBtn.addEventListener("click", openAvatar);
+closeAvatarBtn.addEventListener("click", closeAvatar);
+avatarModal.addEventListener("click", e=>{ if(e.target===avatarModal) closeAvatar(); });
+
+/***** INIT *****/
 initAvatar();
-submitBtn.disabled = true;          // hide until Start!
-answerEl.style.display = submitBtn.style.display = "none";
+answerEl.disabled=false;
