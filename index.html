@@ -2,12 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <!-- important for mobile scaling -->
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no" />
+
   <title>Zombie Math Attack!</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-  <!--‑‑‑ TOP BAR ‑‑‑-->
+  <!--‑‑‑ HEADER ‑‑‑-->
   <header>
     <div class="top-left">
       <span id="avatarDisplay" title="Your avatar">🧑‍🚀</span>
@@ -23,7 +26,7 @@
     </div>
   </header>
 
-  <!--‑‑‑ SETTINGS PANEL (collapsible) ‑‑‑-->
+  <!--‑‑‑ SETTINGS PANEL (unchanged) ‑‑‑-->
   <details id="settings">
     <summary>⚙️ Settings</summary>
     <div class="controls">
@@ -54,16 +57,25 @@
     </div>
   </details>
 
-  <!--‑‑‑ GAME AREA ‑‑‑-->
+  <!--‑‑‑ GAME AREA + ANSWER BAR + DIGIT PAD ‑‑‑-->
   <main>
-    <div id="gameArea">
-      <!-- zombies get injected here -->
-    </div>
+    <div id="gameArea"></div>
 
     <div class="answer-bar">
-      <input id="answer" type="number" placeholder="Type answer…" autocomplete="off" />
+      <!-- numeric keypad on iOS, but physical keyboard still works -->
+      <input id="answer"
+             type="tel"
+             inputmode="numeric"
+             pattern="[0-9]*"
+             placeholder="Type or tap…"
+             autocomplete="off" />
       <button id="submit">Fire!</button>
       <span id="feedback"></span>
+    </div>
+
+    <!-- BIG TAPPABLE DIGITS -->
+    <div id="digitPad" class="pad">
+      1 2 3 4 5 6 7 8 9 0 ⌫
     </div>
   </main>
 
@@ -83,7 +95,7 @@
     </div>
   </div>
 
-  <!-- libraries -->
+  <!-- LIBS + SOUNDS -->
   <script src="https://cdn.jsdelivr.net/npm/js-confetti@0.11.0/dist/js-confetti.browser.js"></script>
   <audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_6fc0dddb3d.mp3"></audio>
   <audio id="wrongSound"   src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6f50e3e295.mp3"></audio>
