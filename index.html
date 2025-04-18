@@ -6,18 +6,61 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Quick Math</h1>
 
-  <div id="problem"></div>
+  <header>
+    <h1>Quick Math</h1>
 
-  <input id="answer" type="number" placeholder="?" autofocus />
-  <button id="submit">Check</button>
+    <div class="controls">
+      <label>
+        Operation 
+        <select id="mode">
+          <option value="mixed">Mixed</option>
+          <option value="add">Addition</option>
+          <option value="sub">Subtraction</option>
+          <option value="mul">Multiplication</option>
+          <option value="div">Division</option>
+        </select>
+      </label>
 
-  <div id="feedback"></div>
+      <label>
+        Digits 
+        <select id="digits">
+          <option value="1">1‑digit</option>
+          <option value="2">2‑digit</option>
+        </select>
+      </label>
 
-  <!-- tiny emoji‑confetti library -->
+      <label>
+        Theme 
+        <select id="theme">
+          <option value="unicorn">🦄 Unicorn</option>
+          <option value="space">🚀 Space</option>
+          <option value="dino">🦕 Dino</option>
+        </select>
+      </label>
+
+      <button id="startBtn">Start!</button>
+    </div>
+  </header>
+
+  <main>
+    <div id="problem"></div>
+
+    <input id="answer" type="number" placeholder="?" />
+    <button id="submit">Check</button>
+
+    <div id="feedback"></div>
+
+    <progress id="progress" value="0" max="10"></progress>
+    <div id="stats">
+      <span id="timer">0.0 s</span> |
+      Best: <span id="bestScore">–</span> /
+      <span id="bestTime">–</span>
+    </div>
+  </main>
+
+  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/js-confetti@0.11.0/dist/js-confetti.browser.js"></script>
-  <!-- ding / buzz sounds -->
   <audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_6fc0dddb3d.mp3?filename=tap-notification-180637.mp3"></audio>
   <audio id="wrongSound"   src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6f50e3e295.mp3?filename=incorrect-101205.mp3"></audio>
 
