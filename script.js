@@ -15,6 +15,13 @@ const ding       = document.getElementById("correctSound");
 const buzz       = document.getElementById("wrongSound");
 const confetti   = new JSConfetti();
 
+/* avatar builder */
+const avatarDisplay   = document.getElementById("avatarDisplay");
+const editAvatarBtn   = document.getElementById("editAvatarBtn");
+const avatarModal     = document.getElementById("avatarModal");
+const avatarChoices   = document.getElementById("avatarChoices");
+const closeAvatarBtn  = document.getElementById("closeAvatarBtn");
+
 /******** game state ********/
 let a, b, op, correct;
 let questionCount, score;
@@ -23,8 +30,23 @@ let timerInt, startTime;
 /******** helpers ********/
 const rand = (min,max) => Math.floor(Math.random()*(max-min+1))+min;  // inclusive
 const pick = arr => arr[Math.floor(Math.random()*arr.length)];
-const loadBest = () => JSON.parse(localStorage.getItem("quickMathBest")||"{}");
-const saveBest = best => localStorage.setItem("quickMathBest",JSON.stringify(best));
+const loadJSON = key => JSON.parse(localStorage.getItem(key)||"{}");
+const saveJSON = (key,obj) => localStorage.setItem(key,JSON.stringify(obj));
+
+/******** avatar handling ********/
+function initAvatar(){
+  const stored = localStorage.getItem("quickMathAvatar") || "🤖";
+  avatarDisplay.textContent = stored;
+}
+function openAvatarModal(){ avatarModal.style.display="flex"; }
+function closeAvatarModal(){ avatarModal.style.display="none"; }
+function chooseAvatar(e){
+  if(!e.target.classList.contains("avatar-option")) return;
+  const emoji = e.target.textContent;
+  avatarDisplay.textContent = emoji;
+  localStorage.setItem("quickMathAvatar", emoji);
+  closeAvatarModal();
+}
 
 /******** UI helpers ********/
 function setTheme(theme){
@@ -93,13 +115,13 @@ function startRound(){
 function endRound(){
   clearInterval(timerInt);
   const elapsed = ((Date.now()-startTime)/1000).toFixed(1);
-  problemEl.textContent = `You scored ${score}/10 in ${elapsed}s 🎉`;
+  problemEl.textContent = `${avatarDisplay.textContent} scored ${score}/10 in ${elapsed}s 🎉`;
   answerEl.style.display = submitBtn.style.display = "none";
   startBtn.disabled = false;
   confetti.addConfetti({emojis:["🎉","🦄","🚀","🦕","✨","⭐️"]});
 
   /* ----- high‑score ----- */
-  const best = loadBest();
+  const best = loadJSON("quickMathBest");
   let updated = false;
   if(!best.score || score>best.score){
     best.score = score; updated=true;
@@ -109,7 +131,7 @@ function endRound(){
       best.time = elapsed; updated=true;
     }
   }
-  if(updated) saveBest(best);
+  if(updated) saveJSON("quickMathBest",best);
   showBest();
 }
 
@@ -138,7 +160,7 @@ function check(){
 
 /******** best score display ********/
 function showBest(){
-  const {score,time} = loadBest();
+  const {score,time} = loadJSON("quickMathBest");
   bestScoreEl.textContent = score ?? "–";
   bestTimeEl.textContent  = time  ?? "–";
 }
@@ -148,9 +170,14 @@ submitBtn.addEventListener("click", check);
 answerEl.addEventListener("keydown", e=>e.key==="Enter" && check());
 startBtn.addEventListener("click", startRound);
 themeSel.addEventListener("change", ()=>setTheme(themeSel.value));
+editAvatarBtn.addEventListener("click", openAvatarModal);
+closeAvatarBtn.addEventListener("click", closeAvatarModal);
+avatarModal.addEventListener("click", e=>{ if(e.target===avatarModal) closeAvatarModal(); });
+avatarChoices.addEventListener("click", chooseAvatar);
 
 /******** init ********/
 showBest();
 setTheme(themeSel.value);
+initAvatar();
 submitBtn.disabled = true;          // hide until Start!
 answerEl.style.display = submitBtn.style.display = "none";
