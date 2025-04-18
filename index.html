@@ -10,6 +10,13 @@
   <header>
     <h1>Quick Math</h1>
 
+    <!-- avatar display + edit button -->
+    <div class="avatar-section">
+      <span id="avatarDisplay" title="Your avatar">🤖</span>
+      <button id="editAvatarBtn">Avatar</button>
+    </div>
+
+    <!-- existing level / theme controls -->
     <div class="controls">
       <label>
         Operation 
@@ -59,7 +66,26 @@
     </div>
   </main>
 
-  <!-- Libraries -->
+  <!-- ---------- Avatar builder modal ---------- -->
+  <div id="avatarModal" class="modal">
+    <div class="modal-content">
+      <h2>Pick your avatar</h2>
+      <div id="avatarChoices">
+        <!-- feel free to add / remove options -->
+        <button class="avatar-option">🤖</button>
+        <button class="avatar-option">🦄</button>
+        <button class="avatar-option">🦕</button>
+        <button class="avatar-option">🚀</button>
+        <button class="avatar-option">🐱</button>
+        <button class="avatar-option">🐶</button>
+        <button class="avatar-option">👾</button>
+        <button class="avatar-option">👸</button>
+      </div>
+      <button id="closeAvatarBtn">Close</button>
+    </div>
+  </div>
+
+  <!-- libraries -->
   <script src="https://cdn.jsdelivr.net/npm/js-confetti@0.11.0/dist/js-confetti.browser.js"></script>
   <audio id="correctSound" src="https://cdn.pixabay.com/download/audio/2022/03/24/audio_6fc0dddb3d.mp3?filename=tap-notification-180637.mp3"></audio>
   <audio id="wrongSound"   src="https://cdn.pixabay.com/download/audio/2022/03/15/audio_6f50e3e295.mp3?filename=incorrect-101205.mp3"></audio>
