@@ -15,23 +15,31 @@
     <span id="scoreBoard">Score 0</span>
   </header>
 
-  <!-- 3‑D corridor -->
+  <!-- corridor -->
   <main id="gameArea"></main>
 
   <!-- gun & muzzle flash -->
-  <img id="gun" src="https://opengameart.org/sites/default/files/shotgun.png" alt="gun">
+  <img id="gun"
+       src="https://opengameart.org/sites/default/files/shotgun2.png"
+       alt="gun sprite">
   <div id="flash"></div>
 
   <!-- answer box -->
   <div class="answer-bar">
-    <input id="answer" type="tel" inputmode="numeric" pattern="[0-9]*"
-           placeholder="Type answer…" autocomplete="off">
+    <input id="answer"
+           type="tel"
+           inputmode="numeric"
+           pattern="[0-9]*"
+           placeholder="Type answer…"
+           autocomplete="off">
     <button id="submit">Fire!</button>
   </div>
 
   <!-- sounds -->
-  <audio id="gunSound"  src="https://cdn.pixabay.com/download/audio/2022/03/07/audio_c6c84213ea.mp3?filename=gunshot-27730.mp3"></audio>
-  <audio id="hurtSound" src="https://cdn.pixabay.com/download/audio/2022/02/01/audio_71b9ba317d.mp3?filename=zombie-hurt-11453.mp3"></audio>
+  <audio id="gunSound"
+         src="https://cdn.pixabay.com/download/audio/2022/03/07/audio_c6c84213ea.mp3?filename=gunshot-27730.mp3"></audio>
+  <audio id="hurtSound"
+         src="https://cdn.pixabay.com/download/audio/2022/02/01/audio_71b9ba317d.mp3?filename=zombie-hurt-11453.mp3"></audio>
 
   <script src="doom.js"></script>
 </body>
